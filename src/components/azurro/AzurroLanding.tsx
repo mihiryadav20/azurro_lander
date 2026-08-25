@@ -289,8 +289,8 @@ export function AzurroLanding() {
         <div className="mb-5 font-mono text-xs text-muted-foreground">
           02 / GETTING STARTED
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] items-start gap-8 sm:gap-12 md:gap-16">
-          <div>
+        <div className="flex flex-wrap items-start gap-8 sm:gap-12 md:gap-16">
+          <div className="max-w-[420px] flex-[1_1_260px]">
             <h2 className="mb-5 text-[clamp(34px,5vw,64px)] leading-none">
               Half a day per centre.
             </h2>
@@ -302,7 +302,7 @@ export function AzurroLanding() {
               You are live the next morning.
             </p>
           </div>
-          <div className="bg-card p-6 shadow-[inset_0_0_0_1px_var(--border)]">
+          <div className="flex-[3_1_460px] bg-card p-6 shadow-[inset_0_0_0_1px_var(--border)]">
             <div className="mb-4 font-mono text-xs text-muted-foreground">
               INSTALL CHECKLIST
             </div>
