@@ -5,9 +5,12 @@ import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/termina
 const primaryBtn =
   "inline-flex items-center bg-primary text-primary-foreground text-sm font-semibold transition-opacity hover:opacity-85"
 const outlineBtn =
-  "inline-flex items-center border border-border text-foreground text-sm transition-colors hover:bg-secondary"
+  "inline-flex items-center border border-border text-foreground text-[13px] transition-colors hover:bg-secondary"
 const navLink =
   "px-3 py-2 text-muted-foreground transition-colors hover:text-foreground"
+const sectionPad = "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)]"
+const termLine =
+  "font-mono whitespace-pre text-[clamp(11px,2.2cqw,12px)] leading-[1.72]"
 
 const OCCUPANCY_ROWS: { label: string; cells: ("empty" | "booked" | "unbooked")[] }[] = [
   { label: "GROUND 1", cells: ["empty", "booked", "booked", "booked", "empty", "empty"] },
@@ -71,7 +74,7 @@ export function AzurroLanding() {
                 className="absolute -left-[19px] -top-[17px] h-[60px] w-[60px]"
               />
             </span>
-            <span className="font-display text-2xl leading-none tracking-[0.02em] text-foreground">
+            <span className="font-display text-2xl leading-none font-bold tracking-[0.02em] text-foreground">
               AZURRO
             </span>
           </div>
@@ -93,7 +96,7 @@ export function AzurroLanding() {
       </div>
 
       {/* Hero */}
-      <section className="mx-auto max-w-[1200px] px-6 pt-12 sm:pt-16 md:pt-24">
+      <section className="mx-auto max-w-[1200px] px-6 pt-[clamp(48px,8vw,96px)]">
         <div className="mb-6 inline-flex items-center gap-2 bg-secondary px-3 py-[5px] text-xs text-muted-foreground">
           <span className="block h-[5px] w-[5px] bg-foreground" />
           Half a day to install. Live the next morning.
@@ -109,15 +112,15 @@ export function AzurroLanding() {
           <a href="#contact" className={`${primaryBtn} px-[18px] py-[11px]`}>
             Book a Demo
           </a>
-          <a href="#what" className={`${outlineBtn} px-3.5 py-2.5 text-[13px]`}>
+          <a href="#what" className={`${outlineBtn} px-3.5 py-2.5`}>
             See what it catches
           </a>
         </div>
       </section>
 
       {/* Occupancy grid mock */}
-      <section className="mx-auto max-w-[1200px] px-6 pt-10 sm:pt-12 md:pt-16">
-        <div className="bg-card p-4 shadow-[inset_0_0_0_1px_var(--border)] sm:p-6">
+      <section className="mx-auto max-w-[1200px] px-6 pt-[clamp(40px,6vw,64px)]">
+        <div className="bg-card p-[clamp(16px,3vw,24px)] shadow-[inset_0_0_0_1px_var(--border)]">
           <div className="flex flex-wrap items-center gap-2 pb-4">
             <span className="font-mono text-xs text-muted-foreground">
               SCORESHEETS · 12 SEP · OCCUPANCY
@@ -178,7 +181,7 @@ export function AzurroLanding() {
       </section>
 
       {/* What Azurro does */}
-      <section id="what" className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
+      <section id="what" className={sectionPad}>
         <div className="mb-5 font-mono text-xs text-muted-foreground">
           01 / WHAT AZURRO DOES
         </div>
@@ -217,7 +220,7 @@ export function AzurroLanding() {
           {VAR_ITEMS.map((item, i) => (
             <div
               key={item.title}
-              className={`grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-x-8 gap-y-2 px-6 py-5 ${
+              className={`grid grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-x-6 gap-y-2 px-6 py-5 ${
                 i < VAR_ITEMS.length - 1 ? "border-b border-border" : ""
               }`}
             >
@@ -227,53 +230,55 @@ export function AzurroLanding() {
                   {item.title}
                 </span>
               </div>
-              <p className="text-[15px] leading-relaxed text-muted-foreground">
+              <p className="text-[15px] leading-[1.6] text-muted-foreground">
                 {item.desc}
               </p>
             </div>
           ))}
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center gap-8 sm:mt-20 md:mt-24">
-          <p className="flex-[1_1_260px] max-w-[420px] text-[clamp(19px,2.2vw,24px)] leading-[1.35] text-foreground">
+        <div className="mt-[clamp(56px,9vw,96px)] flex flex-wrap items-center gap-[clamp(28px,4vw,56px)]">
+          <p className="max-w-[460px] flex-[1_1_300px] text-[clamp(19px,2.2vw,24px)] leading-[1.35] text-foreground">
             Every count comes with the run it came from. You see the ground,
             the time and what the cameras actually returned. So does your
             manager.
           </p>
-          <div className="flex-[3_1_460px]">
-            <Terminal className="h-auto max-h-none w-full max-w-none rounded-none border-border bg-card">
-              <AnimatedSpan className="text-muted-foreground">
-                <span className="ml-4 font-mono text-[11px] tracking-[0.04em]">
-                  varo · terna-nerul
-                </span>
+          <div className="flex-[1.4_1_420px]">
+            <Terminal
+              className="h-auto max-h-none w-full max-w-none rounded-none border-border bg-card [container-type:inline-size] [&>pre]:min-h-[calc(17.2em_+_40px)] [&>pre]:p-[clamp(10px,1.6cqw,20px)] [&>pre]:text-[clamp(11px,2.2cqw,12px)] [&>pre>code]:gap-y-0"
+            >
+              <AnimatedSpan
+                className={`${termLine} tracking-[0.04em] text-muted-foreground`}
+              >
+                varo · terna-nerul
               </AnimatedSpan>
               <TypingAnimation
                 duration={26}
-                className="font-mono text-xs text-foreground"
+                className={`${termLine} text-foreground`}
               >
                 {"> varo run --interval 15"}
               </TypingAnimation>
-              <AnimatedSpan className="font-mono text-xs text-muted-foreground">
-                VAR-O1  0.2.0  yolo11m.pt conf=0.30 imgsz=640
+              <AnimatedSpan className={`${termLine} text-muted-foreground`}>
+                {"VAR-O1  0.2.0  yolo11m.pt conf=0.30 imgsz=640"}
               </AnimatedSpan>
-              <AnimatedSpan className="font-mono text-xs text-muted-foreground">
-                centre  terna-nerul    cameras  9    interval  15s
+              <AnimatedSpan className={`${termLine} text-muted-foreground`}>
+                {"centre  terna-nerul    cameras  9    interval  15s"}
               </AnimatedSpan>
-              <AnimatedSpan className="mt-2 font-mono text-xs text-green-500">
+              <AnimatedSpan className={`${termLine} mt-[1.72em] text-green-500`}>
                 {"  GR1   14:02:18  people=6  raw=8  in-roi=6   POST /ingest  200"}
               </AnimatedSpan>
-              <AnimatedSpan className="font-mono text-xs text-green-500">
+              <AnimatedSpan className={`${termLine} text-green-500`}>
                 {"  GR2   14:02:18  people=0  raw=1  in-roi=0   POST /ingest  200"}
               </AnimatedSpan>
-              <AnimatedSpan className="font-mono text-xs text-green-500">
+              <AnimatedSpan className={`${termLine} text-green-500`}>
                 {"  GR3   14:02:19  people=4  raw=4  in-roi=4   POST /ingest  200"}
               </AnimatedSpan>
-              <AnimatedSpan className="font-mono text-xs text-green-500">
+              <AnimatedSpan className={`${termLine} text-green-500`}>
                 {"  PB3   14:02:19  people=0  raw=0  in-roi=0   POST /ingest  200"}
               </AnimatedSpan>
               <TypingAnimation
                 duration={26}
-                className="mt-2 font-mono text-xs text-blue-500"
+                className={`${termLine} mt-[1.72em] text-blue-500`}
               >
                 {"spool  0    last ingest  0.4s ago    box token  ok"}
               </TypingAnimation>
@@ -283,12 +288,12 @@ export function AzurroLanding() {
       </section>
 
       {/* Getting started */}
-      <section className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
+      <section className={sectionPad}>
         <div className="mb-5 font-mono text-xs text-muted-foreground">
           02 / GETTING STARTED
         </div>
-        <div className="flex flex-wrap items-start gap-8 sm:gap-12 md:gap-16">
-          <div className="max-w-[420px] flex-[1_1_260px]">
+        <div className="flex flex-wrap items-start gap-[clamp(28px,4vw,56px)]">
+          <div className="max-w-[460px] flex-[1_1_300px]">
             <h2 className="mb-5 text-[clamp(34px,5vw,64px)] leading-none">
               Half a day per centre.
             </h2>
@@ -300,7 +305,7 @@ export function AzurroLanding() {
               You are live the next morning.
             </p>
           </div>
-          <div className="flex-[3_1_460px] bg-card p-6 shadow-[inset_0_0_0_1px_var(--border)]">
+          <div className="flex-[1.4_1_420px] bg-card p-6 shadow-[inset_0_0_0_1px_var(--border)]">
             <div className="mb-4 font-mono text-xs text-muted-foreground">
               INSTALL CHECKLIST
             </div>
@@ -319,13 +324,13 @@ export function AzurroLanding() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
+      <section id="faq" className={sectionPad}>
         <div className="mb-5 font-mono text-xs text-muted-foreground">03 / FAQ</div>
         <div className="-mx-6 flex flex-col border-t border-border">
           {FAQS.map((faq) => (
             <div
               key={faq.q}
-              className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-x-8 gap-y-4 border-b border-border px-6 py-7"
+              className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-x-[clamp(32px,5vw,64px)] gap-y-4 border-b border-border px-6 py-7"
             >
               <h3 className="text-[clamp(26px,3vw,32px)] leading-[1.1]">
                 {faq.q}
@@ -339,8 +344,8 @@ export function AzurroLanding() {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] items-center gap-8 bg-card p-6 shadow-[inset_0_0_0_1px_var(--border)] sm:gap-12 sm:p-10 md:gap-16 md:p-16">
+      <section id="contact" className={sectionPad}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,320px),1fr))] items-center gap-[clamp(32px,5vw,64px)] bg-card px-[clamp(24px,4vw,48px)] py-[clamp(32px,5vw,64px)] shadow-[inset_0_0_0_1px_var(--border)]">
           <div>
             <h2 className="mb-5 max-w-[14ch] text-[clamp(36px,5.4vw,72px)] leading-none">
               See it running on your centre.
@@ -349,7 +354,7 @@ export function AzurroLanding() {
               Tell us where you operate. We will show you what it would look
               like on your grounds.
             </p>
-            <p className="max-w-[46ch] text-[15px] leading-relaxed text-muted-foreground opacity-75">
+            <p className="max-w-[46ch] text-[15px] leading-[1.6] text-muted-foreground opacity-75">
               We will ask for your name, phone, business, city, and how many
               centres and grounds you run.
             </p>
@@ -372,7 +377,7 @@ export function AzurroLanding() {
       </section>
 
       {/* Footer */}
-      <div className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
+      <div className={sectionPad}>
         <div className="-mx-6 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-border px-6 pt-6 text-[13px] text-muted-foreground">
           <span className="mr-auto">Azurro · Scoresheets · VAR-o1</span>
           <span>Navi Mumbai</span>
