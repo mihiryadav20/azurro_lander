@@ -112,7 +112,10 @@ export function AzurroLanding() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="relative z-0 min-h-full overflow-x-hidden bg-background pb-24">
+      {/* overflow-x-clip, not -hidden: `hidden` computes overflow-y to `auto`,
+          which makes this div the sticky header's scroll container and kills
+          the stick. `clip` contains the rails without creating one. */}
+      <div className="relative z-0 min-h-full overflow-x-clip bg-background pb-24">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[-1] opacity-40"
