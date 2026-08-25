@@ -229,6 +229,8 @@ interface TerminalProps {
   className?: string
   sequence?: boolean
   startOnView?: boolean
+  loop?: boolean
+  loopDelay?: number
 }
 
 export const Terminal = ({
@@ -236,15 +238,37 @@ export const Terminal = ({
   className,
   sequence = true,
   startOnView = true,
+  loop = false,
+  loopDelay = 4000,
 }: TerminalProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const isInView = useInView(containerRef as React.RefObject<Element>, {
     amount: 0.3,
     once: true,
   })
+  // Restarts are gated on live visibility rather than the once:true flag above,
+  // so an off-screen terminal isn't burning a timer between runs.
+  const isVisible = useInView(containerRef as React.RefObject<Element>, {
+    amount: 0.3,
+  })
 
   const [activeIndex, setActiveIndex] = useState(0)
+  const [runId, setRunId] = useState(0)
   const sequenceHasStarted = sequence ? !startOnView || isInView : false
+
+  const itemCount = useMemo(() => Children.toArray(children).length, [children])
+
+  // A finished sequence rewinds by remounting every item (see runId in the key
+  // below), which is what resets each child's own typing/fade state.
+  useEffect(() => {
+    if (!sequence || !loop) return
+    if (activeIndex < itemCount || !isVisible) return
+    const restart = setTimeout(() => {
+      setActiveIndex(0)
+      setRunId((id) => id + 1)
+    }, loopDelay)
+    return () => clearTimeout(restart)
+  }, [sequence, loop, activeIndex, itemCount, isVisible, loopDelay])
 
   const contextValue = useMemo<SequenceContextValue | null>(() => {
     if (!sequence) return null
@@ -261,11 +285,11 @@ export const Terminal = ({
     if (!sequence) return children
     const array = Children.toArray(children)
     return array.map((child, index) => (
-      <ItemIndexContext.Provider key={index} value={index}>
+      <ItemIndexContext.Provider key={`${runId}-${index}`} value={index}>
         {child as React.ReactNode}
       </ItemIndexContext.Provider>
     ))
-  }, [children, sequence])
+  }, [children, sequence, runId])
 
   const content = (
     <div

@@ -1,5 +1,5 @@
-import { Fragment } from "react"
-import { MotionConfig, motion, useReducedMotion } from "motion/react"
+import { Fragment, useEffect, useRef, useState } from "react"
+import { MotionConfig, motion, useInView, useReducedMotion } from "motion/react"
 import logo from "@/assets/azurro-logo.png"
 import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/terminal"
 import {
@@ -20,7 +20,11 @@ const primaryBtn =
 const outlineBtn =
   "inline-flex items-center border border-border text-foreground text-[13px] transition-colors hover:bg-secondary"
 const navLink =
-  "px-3 py-2 text-muted-foreground transition-colors hover:text-foreground"
+  "relative px-3 py-2 text-muted-foreground transition-colors hover:text-foreground " +
+  "after:absolute after:inset-x-3 after:bottom-1 after:h-px after:origin-left after:scale-x-0 " +
+  "after:bg-foreground after:transition-transform after:duration-300 " +
+  "after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100 " +
+  "motion-reduce:after:transition-none"
 const sectionPad = "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)]"
 const termLine =
   "font-mono whitespace-pre text-[clamp(11px,2.2cqw,12px)] leading-[1.72]"
@@ -28,12 +32,24 @@ const tap = { scale: 0.985 }
 
 const TIMES = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
 
-const OCCUPANCY_ROWS: { label: string; cells: ("empty" | "booked" | "unbooked")[] }[] = [
+const OCCUPANCY_ROWS: { label: string; cells: ("empty" | "booked")[] }[] = [
   { label: "GROUND 1", cells: ["empty", "booked", "booked", "booked", "empty", "empty"] },
   { label: "GROUND 2", cells: ["booked", "booked", "empty", "booked", "booked", "empty"] },
-  { label: "GROUND 3", cells: ["empty", "booked", "booked", "empty", "unbooked", "empty"] },
+  { label: "GROUND 3", cells: ["empty", "booked", "booked", "empty", "empty", "empty"] },
   { label: "GROUND 4", cells: ["booked", "empty", "booked", "booked", "booked", "empty"] },
 ]
+
+// The catch can only land where the register shows nothing — that is the whole
+// claim. So the empty cells, and only those, are the candidate positions.
+const CATCH_SLOTS = OCCUPANCY_ROWS.flatMap((row, r) =>
+  row.cells.flatMap((cell, c) => (cell === "empty" ? [[r, c] as const] : []))
+)
+// Opens on GROUND 3 / 21:00, the position this grid was designed around.
+const FIRST_CATCH = Math.max(
+  CATCH_SLOTS.findIndex(([r, c]) => r === 2 && c === 4),
+  0
+)
+const CATCH_INTERVAL = 3600
 
 const VAR_ITEMS = [
   { title: "Unbooked play", desc: "Ground was occupied. Nothing in the register." },
@@ -65,8 +81,31 @@ const FAQS = [
 
 export function AzurroLanding() {
   // MotionConfig strips transforms for reduced-motion users but leaves opacity
-  // running, so the one infinite animation on the page needs its own opt-out.
+  // running, so the looping animations on the page need their own opt-out.
   const reduceMotion = useReducedMotion()
+
+  // VAR-o1 keeps finding a new one. The catch moves between empty slots while
+  // the grid is on screen, and holds still once it scrolls away.
+  const gridRef = useRef<HTMLDivElement>(null)
+  const gridInView = useInView(gridRef as React.RefObject<Element>, {
+    amount: 0.3,
+  })
+  const [catchIndex, setCatchIndex] = useState(FIRST_CATCH)
+  const [catchRow, catchCol] = CATCH_SLOTS[catchIndex]
+
+  useEffect(() => {
+    if (reduceMotion || !gridInView || CATCH_SLOTS.length < 2) return
+    const move = setInterval(() => {
+      setCatchIndex((current) => {
+        let next = current
+        while (next === current) {
+          next = Math.floor(Math.random() * CATCH_SLOTS.length)
+        }
+        return next
+      })
+    }, CATCH_INTERVAL)
+    return () => clearInterval(move)
+  }, [reduceMotion, gridInView])
 
   return (
     <MotionConfig reducedMotion="user">
@@ -181,6 +220,7 @@ export function AzurroLanding() {
         {/* Occupancy grid mock */}
         <section className="mx-auto max-w-[1200px] px-6 pt-[clamp(40px,6vw,64px)]">
           <motion.div
+            ref={gridRef}
             className="bg-card p-[clamp(16px,3vw,24px)] shadow-[inset_0_0_0_1px_var(--border)]"
             variants={fadeUp}
             initial="hidden"
@@ -212,7 +252,7 @@ export function AzurroLanding() {
                   </motion.span>
                 ))}
 
-                {OCCUPANCY_ROWS.map((row) => (
+                {OCCUPANCY_ROWS.map((row, r) => (
                   <Fragment key={row.label}>
                     <motion.span
                       variants={gridCell}
@@ -221,31 +261,32 @@ export function AzurroLanding() {
                     >
                       {row.label}
                     </motion.span>
-                    {row.cells.map((cell, i) =>
-                      cell === "unbooked" ? (
+                    {row.cells.map((cell, i) => {
+                      // The key carries the cell's state so a slot that gains or
+                      // loses the catch remounts and replays its animation
+                      // instead of silently swapping class names.
+                      const isCatch = r === catchRow && i === catchCol
+                      return isCatch ? (
                         <motion.div
-                          key={i}
+                          key={`${i}-catch`}
                           variants={unbookedCell}
                           className="flex h-9 items-center justify-center bg-primary text-[10px] tracking-[0.04em] text-primary-foreground"
                         >
                           UNBOOKED
                         </motion.div>
-                      ) : cell === "booked" ? (
-                        <motion.div
-                          key={i}
-                          variants={gridCell}
-                          custom={i}
-                          className="h-9 bg-secondary"
-                        />
                       ) : (
                         <motion.div
-                          key={i}
+                          key={`${i}-${cell}`}
                           variants={gridCell}
                           custom={i}
-                          className="h-9 border border-border"
+                          className={
+                            cell === "booked"
+                              ? "h-9 bg-secondary"
+                              : "h-9 border border-border"
+                          }
                         />
                       )
-                    )}
+                    })}
                   </Fragment>
                 ))}
               </motion.div>
@@ -378,7 +419,11 @@ export function AzurroLanding() {
             {/* Terminal runs its own typing sequence off its own inView check;
                 this wrapper only handles the reveal. */}
             <motion.div variants={fadeUp} className="flex-[1.4_1_420px]">
-              <Terminal className="h-auto max-h-none w-full max-w-none rounded-none border-border bg-card [container-type:inline-size] [&>pre]:min-h-[calc(17.2em_+_40px)] [&>pre]:p-[clamp(10px,1.6cqw,20px)] [&>pre]:text-[clamp(11px,2.2cqw,12px)] [&>pre>code]:gap-y-0">
+              <Terminal
+                loop={!reduceMotion}
+                loopDelay={5200}
+                className="h-auto max-h-none w-full max-w-none rounded-none border-border bg-card [container-type:inline-size] [&>pre]:min-h-[calc(17.2em_+_40px)] [&>pre]:p-[clamp(10px,1.6cqw,20px)] [&>pre]:text-[clamp(11px,2.2cqw,12px)] [&>pre>code]:gap-y-0"
+              >
                 <AnimatedSpan
                   className={`${termLine} tracking-[0.04em] text-muted-foreground`}
                 >
