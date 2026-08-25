@@ -51,11 +51,9 @@ export function AzurroLanding() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-[-1] opacity-40"
       >
-        <div className="mx-auto grid h-full max-w-[1200px] grid-cols-4 border-r border-border px-6">
-          <div className="border-l border-border" />
-          <div className="border-l border-border" />
-          <div className="border-l border-border" />
-          <div className="border-l border-border" />
+        <div className="relative mx-auto h-full max-w-[1200px]">
+          <div className="absolute inset-y-0 left-0 w-px bg-border" />
+          <div className="absolute inset-y-0 right-0 w-px bg-border" />
         </div>
       </div>
 
@@ -323,11 +321,11 @@ export function AzurroLanding() {
       {/* FAQ */}
       <section id="faq" className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
         <div className="mb-5 font-mono text-xs text-muted-foreground">03 / FAQ</div>
-        <div className="flex flex-col border-t border-border">
+        <div className="-mx-6 flex flex-col border-t border-border">
           {FAQS.map((faq) => (
             <div
               key={faq.q}
-              className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-x-8 gap-y-4 border-b border-border py-7"
+              className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,300px),1fr))] gap-x-8 gap-y-4 border-b border-border px-6 py-7"
             >
               <h3 className="text-[clamp(26px,3vw,32px)] leading-[1.1]">
                 {faq.q}
@@ -375,7 +373,7 @@ export function AzurroLanding() {
 
       {/* Footer */}
       <div className="mx-auto max-w-[1200px] px-6 pt-14 sm:pt-20 md:pt-24">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-border pt-6 text-[13px] text-muted-foreground">
+        <div className="-mx-6 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-border px-6 pt-6 text-[13px] text-muted-foreground">
           <span className="mr-auto">Azurro · Scoresheets · VAR-o1</span>
           <span>Navi Mumbai</span>
           <a
