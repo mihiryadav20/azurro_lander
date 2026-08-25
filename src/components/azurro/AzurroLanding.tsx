@@ -25,7 +25,10 @@ const navLink =
   "after:bg-foreground after:transition-transform after:duration-300 " +
   "after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100 " +
   "motion-reduce:after:transition-none"
-const sectionPad = "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)]"
+// scroll-mt clears the sticky header (~53px) on anchor jumps; each section's own
+// top padding supplies the breathing room below it.
+const sectionPad =
+  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[60px]"
 const termLine =
   "font-mono whitespace-pre text-[clamp(11px,2.2cqw,12px)] leading-[1.72]"
 const tap = { scale: 0.985 }
@@ -374,7 +377,7 @@ export function AzurroLanding() {
 
           <motion.div
             id="var"
-            className="mt-2 bg-card shadow-[inset_0_0_0_1px_var(--border)]"
+            className="mt-2 scroll-mt-[80px] bg-card shadow-[inset_0_0_0_1px_var(--border)]"
             variants={stagger(0.09)}
             initial="hidden"
             whileInView="visible"

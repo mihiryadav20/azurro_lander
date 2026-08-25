@@ -1,13 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/inter";
+@import "@fontsource-variable/montserrat";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Inter Variable', sans-serif;
+    --font-sans: 'Montserrat Variable', system-ui, sans-serif;
     --font-display: 'Bebas Neue', system-ui, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --color-sidebar-ring: var(--sidebar-ring);
@@ -125,13 +125,19 @@
     }
   body {
     @apply bg-background text-muted-foreground;
-    letter-spacing: -0.011em;
-    font-feature-settings: "cv01" on, "ss03" on, "zero" on;
+    letter-spacing: -0.008em;
     -webkit-font-smoothing: antialiased;
     }
   html {
     @apply font-sans;
     }
+  /* Nav anchors glide instead of jumping. Gated on the media query rather than
+     set unconditionally, so reduced-motion users still get an instant jump. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   h1, h2, h3, h4 {
     @apply text-foreground;
     font-family: var(--font-display);
