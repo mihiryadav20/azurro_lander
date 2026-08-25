@@ -101,14 +101,11 @@ export function AzurroLanding() {
         >
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-4 px-6 py-3">
             <div className="mr-auto flex items-center gap-[9px]">
-              <span
-                className="relative block h-7 w-[22px] overflow-hidden"
-                style={{ mixBlendMode: "lighten" }}
-              >
+              <span className="relative block h-7 w-5 overflow-hidden">
                 <img
                   src={logo}
                   alt="Azurro"
-                  className="absolute -left-[19px] -top-[17px] h-[60px] w-[60px]"
+                  className="absolute -left-[21px] -top-[17px] h-[62px] w-[62px]"
                 />
               </span>
               <span className="font-display text-2xl leading-none font-bold tracking-[0.02em] text-foreground">
@@ -172,11 +169,11 @@ export function AzurroLanding() {
               Book a Demo
             </motion.a>
             <motion.a
-              href="#what"
+              href="#signin"
               whileTap={tap}
               className={`${outlineBtn} px-3.5 py-2.5`}
             >
-              See what it catches
+              Sign in
             </motion.a>
           </motion.div>
         </motion.section>
