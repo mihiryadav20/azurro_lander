@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react"
 import { MotionConfig, motion, useInView, useReducedMotion } from "motion/react"
 import logo from "@/assets/azurro-logo.png"
+import banner from "@/assets/azurro-banner.png"
 import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/terminal"
 import {
   EASE,
@@ -82,6 +83,12 @@ const FAQS = [
   },
 ]
 
+const FOOTER_LINKS = [
+  { label: "Privacy", href: "#privacy" },
+  { label: "Terms", href: "#terms" },
+  { label: "Contact us", href: "#contact" },
+]
+
 export function AzurroLanding() {
   // MotionConfig strips transforms for reduced-motion users but leaves opacity
   // running, so the looping animations on the page need their own opt-out.
@@ -115,7 +122,7 @@ export function AzurroLanding() {
       {/* overflow-x-clip, not -hidden: `hidden` computes overflow-y to `auto`,
           which makes this div the sticky header's scroll container and kills
           the stick. `clip` contains the rails without creating one. */}
-      <div className="relative z-0 min-h-full overflow-x-clip bg-background pb-24">
+      <div className="relative z-0 min-h-full overflow-x-clip bg-background">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-[-1] opacity-40"
@@ -597,24 +604,45 @@ export function AzurroLanding() {
         </section>
 
         {/* Footer */}
-        <div className={sectionPad}>
+        <footer>
+          <div className={sectionPad}>
+            <motion.div
+              className="-mx-6 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-border px-6 pt-5 text-[13px]"
+              variants={fadeIn}
+              initial="hidden"
+              whileInView="visible"
+              viewport={viewportOnce}
+            >
+              {FOOTER_LINKS.map((link) => (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  className="py-1 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  {link.label}
+                </a>
+              ))}
+            </motion.div>
+          </div>
+          {/* Wordmark banner, full-bleed past the 1200px container. Caps at its
+              own intrinsic 1090px so it never upscales; width/height are the
+              real pixel dimensions so it reserves its box before decode. */}
           <motion.div
-            className="-mx-6 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-border px-6 pt-6 text-[13px] text-muted-foreground"
+            className="mt-[clamp(32px,5vw,56px)]"
             variants={fadeIn}
             initial="hidden"
             whileInView="visible"
-            viewport={viewportOnce}
+            viewport={viewportEarly}
           >
-            <span className="mr-auto">Azurro · Scoresheets · VAR-o1</span>
-            <span>Navi Mumbai</span>
-            <a
-              href="mailto:hello@azurro.in"
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              hello@azurro.in
-            </a>
+            <img
+              src={banner}
+              alt="Azurro"
+              width={1090}
+              height={377}
+              className="mx-auto block h-auto w-full max-w-[1090px]"
+            />
           </motion.div>
-        </div>
+        </footer>
       </div>
     </MotionConfig>
   )
