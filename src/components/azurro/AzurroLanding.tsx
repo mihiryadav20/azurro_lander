@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react"
 import { MotionConfig, motion, useInView, useReducedMotion } from "motion/react"
 import logo from "@/assets/azurro-logo.png"
-import banner from "@/assets/azurro-banner.png"
+import { Footer } from "@/components/footer"
 import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/terminal"
 import {
   EASE,
@@ -83,11 +83,6 @@ const FAQS = [
   },
 ]
 
-const FOOTER_LINKS = [
-  { label: "Privacy", href: "#privacy" },
-  { label: "Terms", href: "#terms" },
-  { label: "Contact us", href: "#contact" },
-]
 
 export function AzurroLanding() {
   // MotionConfig strips transforms for reduced-motion users but leaves opacity
@@ -603,46 +598,7 @@ export function AzurroLanding() {
           </motion.div>
         </section>
 
-        {/* Footer */}
-        <footer>
-          <div className={sectionPad}>
-            <motion.div
-              className="-mx-6 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-border px-6 pt-5 text-[13px]"
-              variants={fadeIn}
-              initial="hidden"
-              whileInView="visible"
-              viewport={viewportOnce}
-            >
-              {FOOTER_LINKS.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="py-1 text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  {link.label}
-                </a>
-              ))}
-            </motion.div>
-          </div>
-          {/* Wordmark banner, full-bleed past the 1200px container. Caps at its
-              own intrinsic 1090px so it never upscales; width/height are the
-              real pixel dimensions so it reserves its box before decode. */}
-          <motion.div
-            className="mt-[clamp(32px,5vw,56px)]"
-            variants={fadeIn}
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewportEarly}
-          >
-            <img
-              src={banner}
-              alt="Azurro"
-              width={1090}
-              height={377}
-              className="mx-auto block h-auto w-full max-w-[1090px]"
-            />
-          </motion.div>
-        </footer>
+        <Footer />
       </div>
     </MotionConfig>
   )
