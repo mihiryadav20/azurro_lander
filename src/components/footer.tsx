@@ -74,7 +74,9 @@ export function Footer() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4 text-[13px] text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Azurro · Koramangala, Bangalore</p>
+            <p>
+              &copy; {new Date().getFullYear()} Azurro · Koramangala, Bangalore
+            </p>
             <a
               className="font-mono transition-colors hover:text-foreground"
               href="mailto:hello@azurro.in"
