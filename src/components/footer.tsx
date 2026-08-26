@@ -4,8 +4,9 @@ import banner from "@/assets/azurro-banner.png"
 import logo from "@/assets/azurro-logo.png"
 import { GithubIcon } from "@/components/icons/github-icon"
 import { XIcon } from "@/components/icons/x-icon"
-import { Button } from "@/components/ui/button"
+import { buttonVariants } from "@/components/ui/button"
 import { fadeIn, viewportEarly, viewportOnce } from "@/components/azurro/motion"
+import { cn } from "@/lib/utils"
 
 const navLinks = [
   { href: "#what", label: "Scoresheets" },
@@ -51,19 +52,22 @@ export function Footer() {
               </div>
               <div className="flex items-center">
                 {socialLinks.map(({ href, label, icon }) => (
-                  // size-11 over the icon size: ghost buttons have no visible
-                  // box, so a 44px hit area costs nothing and clears the iOS
-                  // minimum the rest of the page misses.
-                  <Button
+                  // buttonVariants on a bare <a> rather than <Button>: these
+                  // navigate, so they must stay links — Base UI's Button
+                  // stamps role="button" on whatever it renders. size-11 over
+                  // the icon size gives a 44px hit area, invisible on a ghost
+                  // button and clearing the iOS minimum.
+                  <a
                     key={label}
-                    size="icon"
-                    variant="ghost"
-                    className="size-11"
-                    nativeButton={false}
-                    render={<a aria-label={label} href={href} />}
+                    aria-label={label}
+                    href={href}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "icon" }),
+                      "size-11"
+                    )}
                   >
                     {icon}
-                  </Button>
+                  </a>
                 ))}
               </div>
             </div>
