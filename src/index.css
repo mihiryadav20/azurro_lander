@@ -1,4 +1,9 @@
 @import "tailwindcss";
+/* Tool-installed skill docs (.agents/) are full of Tailwind class names in
+   their code samples; auto-source-detection scans them and emits ~17kB of
+   utilities nothing on the site uses. .gitignore does not exclude them. */
+@source not "../.agents";
+@source not "../.claude";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/montserrat";
