@@ -55,15 +55,14 @@ export function Footer() {
                   // box, so a 44px hit area costs nothing and clears the iOS
                   // minimum the rest of the page misses.
                   <Button
-                    asChild
                     key={label}
                     size="icon"
                     variant="ghost"
                     className="size-11"
+                    nativeButton={false}
+                    render={<a aria-label={label} href={href} />}
                   >
-                    <a aria-label={label} href={href}>
-                      {icon}
-                    </a>
+                    {icon}
                   </Button>
                 ))}
               </div>
