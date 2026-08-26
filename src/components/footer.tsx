@@ -1,7 +1,6 @@
 import { motion } from "motion/react"
 
 import banner from "@/assets/azurro-banner.png"
-import logo from "@/assets/azurro-logo.png"
 import { GithubIcon } from "@/components/icons/github-icon"
 import { XIcon } from "@/components/icons/x-icon"
 import { buttonVariants } from "@/components/ui/button"
@@ -35,21 +34,7 @@ export function Footer() {
           viewport={viewportOnce}
         >
           <div className="flex flex-col gap-6 py-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              {/* Same cropped-logo treatment as the header, so the two marks
-                  sit at identical optical weight. */}
-              <div className="flex items-center gap-[9px]">
-                <span className="relative block h-7 w-5 overflow-hidden">
-                  <img
-                    src={logo}
-                    alt=""
-                    className="absolute -top-[17px] -left-[21px] h-[62px] w-[62px]"
-                  />
-                </span>
-                <span className="font-display text-2xl leading-none font-bold tracking-[0.02em] text-foreground">
-                  AZURRO
-                </span>
-              </div>
+            <div className="flex flex-wrap items-center justify-end gap-4">
               <div className="flex items-center">
                 {socialLinks.map(({ href, label, icon }) => (
                   // buttonVariants on a bare <a> rather than <Button>: these
@@ -88,8 +73,8 @@ export function Footer() {
             </nav>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border py-4 text-[13px] text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Azurro · Navi Mumbai</p>
+          <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 py-4 text-[13px] text-muted-foreground">
+            <p>&copy; {new Date().getFullYear()} Azurro · Koramangala, Bangalore</p>
             <a
               className="font-mono transition-colors hover:text-foreground"
               href="mailto:hello@azurro.in"
