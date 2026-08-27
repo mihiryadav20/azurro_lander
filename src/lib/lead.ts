@@ -32,25 +32,35 @@ export const OTHER_CITY_LABEL = "Other (enter city)"
  * The two vocabularies differ on purpose — the quiz names steps after what it
  * asks, the table names columns after what they hold.
  */
+/**
+ * Empty means "not answered yet", which must not travel as "". JSON.stringify
+ * omits undefined keys entirely, so a field the visitor has not reached is
+ * simply absent from the payload and cannot blank out a stored answer.
+ */
+const orUndefined = (v: string | undefined) => {
+  const trimmed = v?.trim()
+  return trimmed ? trimmed : undefined
+}
+
 function toPayload(sessionId: string, step: number, a: LeadAnswers) {
   const isOther = a.where === OTHER_CITY_LABEL
   return {
     sessionId,
     step,
-    centres: a.centres,
-    grounds: a.grounds,
-    onsite: a.presence,
-    booking: a.records,
-    payment: a.pay,
-    cctv: a.cctv,
+    centres: orUndefined(a.centres),
+    grounds: orUndefined(a.grounds),
+    onsite: orUndefined(a.presence),
+    booking: orUndefined(a.records),
+    payment: orUndefined(a.pay),
+    cctv: orUndefined(a.cctv),
     // The table stores a plain "Other" in the select and the typed city beside
     // it, rather than the quiz's longer button label.
-    location: isOther ? "Other" : a.where,
-    otherCity: isOther ? a.otherCity : undefined,
-    name: a.name,
-    phone: a.phone,
-    business: a.business,
-    whyNow: a.why,
+    location: isOther ? "Other" : orUndefined(a.where),
+    otherCity: isOther ? orUndefined(a.otherCity) : undefined,
+    name: orUndefined(a.name),
+    phone: orUndefined(a.phone),
+    business: orUndefined(a.business),
+    whyNow: orUndefined(a.why),
   }
 }
 
