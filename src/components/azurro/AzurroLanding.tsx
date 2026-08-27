@@ -32,11 +32,14 @@ const navLink =
 // has to step down with it or mobile anchors land underneath the header.
 const sectionPad =
   "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[108px] sm:scroll-mt-[76px]"
-// Below sm the terminal is narrower than its own longest line, so the lines
-// wrap the way a real narrow terminal wraps. Keeping whitespace-pre there
-// would put the tail of every line behind a nested horizontal scroll.
+// Below sm the terminal is narrower than its own longest line — whitespace-pre
+// there puts the tail of every line (the POST and its status) behind a nested
+// horizontal scroll. break-all wraps at the column the way a real narrow
+// terminal does; Chrome breaks after a hyphen no matter what, so wrapping on
+// word boundaries would split in-roi anyway, just with a ragged edge.
 const termLine =
-  "font-mono whitespace-pre-wrap sm:whitespace-pre text-[clamp(11px,2.2cqw,12px)] leading-[1.72]"
+  "font-mono whitespace-pre-wrap break-all sm:whitespace-pre sm:break-normal " +
+  "text-[clamp(11px,2.2cqw,12px)] leading-[1.72]"
 const tap = { scale: 0.985 }
 
 const TIMES = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
