@@ -30,3 +30,6 @@ skills-lock.json
 .env
 .env.local
 .dev.vars
+
+# Wrangler local dev/build state
+.wrangler
