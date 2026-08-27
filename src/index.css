@@ -11,11 +11,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-    /* Header's brand + nav links + CTA need ~516px to share one row (measured
-       at 1200px viewport: 89 + 229 + 118 + 48px padding + 32px gaps). `sm`
-       (640px) is 124px past that, so the header sat stacked into two rows
-       for a 124px range where a one-row header already fits. This is that
-       actual fit point, with a margin for font-metric variance. */
+    /* Point where the header switches from a hamburger + panel to inline nav
+       links. Brand + 3 links + CTA measure ~516px at rest (1200px viewport:
+       89 + 229 + 118 + 48px padding + 32px gaps) — 560px keeps a margin over
+       that so the inline row never crowds the CTA before the switch. */
     --breakpoint-nav: 560px;
     --font-heading: var(--font-sans);
     --font-sans: 'Montserrat Variable', system-ui, sans-serif;

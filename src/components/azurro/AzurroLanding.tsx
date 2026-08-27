@@ -34,12 +34,11 @@ const navLink =
   "after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100 " +
   "motion-reduce:after:transition-none"
 // scroll-mt clears the sticky header on anchor jumps; each section's own top
-// padding supplies the breathing room below it. The header is two rows below
-// `nav` (97px: brand + CTA, then the links on their own row), one 65px row
-// from `nav` up — so the offset has to step down with it or anchors land
-// underneath the header.
+// padding supplies the breathing room below it. The header is one row at every
+// width now (66px, +1 rounding at the narrowest), so this offset no longer
+// has to step at `nav` the way it did when the header itself changed height.
 const sectionPad =
-  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[108px] nav:scroll-mt-[76px]"
+  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[77px]"
 // Below sm the terminal is narrower than its own longest line — whitespace-pre
 // there puts the tail of every line (the POST and its status) behind a nested
 // horizontal scroll. break-all wraps at the column the way a real narrow
@@ -195,7 +194,7 @@ export function AzurroLanding() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: EASE }}
         >
-          <div className="mx-auto flex max-w-[1200px] items-center gap-x-4 px-6 py-3">
+          <div className="mx-auto flex max-w-[1200px] items-center gap-x-2 px-6 py-3 nav:gap-x-4">
             <div className="mr-auto flex items-center gap-[9px]">
               <span className="relative block h-7 w-5 overflow-hidden">
                 <img
@@ -221,7 +220,7 @@ export function AzurroLanding() {
             <motion.a
               href="#contact"
               whileTap={tap}
-              className={`${outlineBtn} min-h-10 px-3.5 font-medium`}
+              className={`${outlineBtn} min-h-10 whitespace-nowrap px-3 font-medium nav:px-3.5`}
             >
               Book a Demo
             </motion.a>
@@ -483,7 +482,7 @@ export function AzurroLanding() {
 
           <motion.div
             id="var"
-            className="mt-2 scroll-mt-[128px] bg-card shadow-[inset_0_0_0_1px_var(--border)] nav:scroll-mt-[96px]"
+            className="mt-2 scroll-mt-[97px] bg-card shadow-[inset_0_0_0_1px_var(--border)]"
             variants={stagger(0.09)}
             initial="hidden"
             whileInView="visible"
