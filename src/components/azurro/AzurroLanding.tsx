@@ -256,10 +256,17 @@ export function AzurroLanding() {
               </motion.span>
             </div>
 
-            <div className="overflow-x-auto">
+            {/* Six slots will not fit a phone at a legible size, so the grid
+                scrolls. min-w is the point where a cell still holds UNBOOKED
+                (~56px) and the label column still holds "GROUND 1" — dropping
+                it from 620px puts two more slots on screen at 360px. */}
+            <div className="overflow-x-auto overscroll-x-contain">
               <motion.div
-                className="grid min-w-[620px] gap-1 font-mono text-[11px] text-muted-foreground"
-                style={{ gridTemplateColumns: "110px repeat(6, 1fr)" }}
+                className="grid min-w-[408px] gap-1 font-mono text-[11px] text-muted-foreground"
+                style={{
+                  gridTemplateColumns:
+                    "clamp(72px, 20vw, 110px) repeat(6, minmax(0, 1fr))",
+                }}
                 variants={{ hidden: {}, visible: {} }}
               >
                 <span />
@@ -308,7 +315,17 @@ export function AzurroLanding() {
                 ))}
               </motion.div>
             </div>
-            <div className="flex flex-wrap items-center gap-5 pt-4 font-mono text-[11px] text-muted-foreground">
+            {/* The grid only overflows below md, so the hint only shows there.
+                A fade at the scroll edge was the alternative and it would hide
+                the last slot at the end of the scroll — not acceptable on the
+                one block that is meant to be read cell by cell. */}
+            <p
+              aria-hidden="true"
+              className="pt-3 font-mono text-[10px] tracking-[0.04em] text-muted-foreground md:hidden"
+            >
+              SWIPE FOR LATER SLOTS →
+            </p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-4 font-mono text-[11px] text-muted-foreground">
               <span className="inline-flex items-center gap-2">
                 <span className="block h-3 w-3 bg-secondary" />
                 BOOKED &amp; CONFIRMED
