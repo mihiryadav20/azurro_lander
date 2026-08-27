@@ -11,6 +11,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    /* Header's brand + nav links + CTA need ~516px to share one row (measured
+       at 1200px viewport: 89 + 229 + 118 + 48px padding + 32px gaps). `sm`
+       (640px) is 124px past that, so the header sat stacked into two rows
+       for a 124px range where a one-row header already fits. This is that
+       actual fit point, with a margin for font-metric variance. */
+    --breakpoint-nav: 560px;
     --font-heading: var(--font-sans);
     --font-sans: 'Montserrat Variable', system-ui, sans-serif;
     --font-display: 'Bebas Neue', system-ui, sans-serif;

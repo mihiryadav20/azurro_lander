@@ -27,11 +27,12 @@ const navLink =
   "after:ease-[cubic-bezier(0.16,1,0.3,1)] hover:after:scale-x-100 " +
   "motion-reduce:after:transition-none"
 // scroll-mt clears the sticky header on anchor jumps; each section's own top
-// padding supplies the breathing room below it. The header is two rows until
-// sm (brand + CTA, then the links) at 97px, one 65px row from sm up — so the offset
-// has to step down with it or mobile anchors land underneath the header.
+// padding supplies the breathing room below it. The header is two rows below
+// `nav` (97px: brand + CTA, then the links on their own row), one 65px row
+// from `nav` up — so the offset has to step down with it or anchors land
+// underneath the header.
 const sectionPad =
-  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[108px] sm:scroll-mt-[76px]"
+  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[108px] nav:scroll-mt-[76px]"
 // Below sm the terminal is narrower than its own longest line — whitespace-pre
 // there puts the tail of every line (the POST and its status) behind a nested
 // horizontal scroll. break-all wraps at the column the way a real narrow
@@ -154,12 +155,12 @@ export function AzurroLanding() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: EASE }}
         >
-          {/* Brand, links and CTA cannot share one line under ~500px — the three
-              together need ~405px inside a 272px content box. So the links take
-              a full-width second row on phones (order-3 + w-full forces the
-              wrap) and rejoin the single row from sm up. */}
-          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-4 px-6 py-2.5 sm:py-3">
-            <div className="order-1 mr-auto flex items-center gap-[9px]">
+          {/* Brand + links + CTA need ~516px to share one line (see --breakpoint-nav
+              in index.css) — below that the links take a full-width second row
+              (order-3 + w-full forces the wrap) and rejoin the single row at
+              `nav` and up. */}
+          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-4 px-6 py-2.5 nav:py-3">
+            <div className="order-1 mr-auto flex items-center gap-[9px] nav:order-none">
               <span className="relative block h-7 w-5 overflow-hidden">
                 <img
                   src={logo}
@@ -171,7 +172,7 @@ export function AzurroLanding() {
                 AZURRO
               </span>
             </div>
-            <div className="order-3 -mx-3 flex w-full flex-wrap items-center text-[13px] sm:order-none sm:mx-0 sm:w-auto sm:gap-1">
+            <div className="order-3 -mx-3 flex w-full flex-wrap items-center text-[13px] nav:order-none nav:mx-0 nav:w-auto nav:gap-1">
               <a href="#what" className={navLink}>
                 Scoresheets
               </a>
@@ -185,7 +186,7 @@ export function AzurroLanding() {
             <motion.a
               href="#contact"
               whileTap={tap}
-              className={`${outlineBtn} order-2 min-h-10 px-3.5 font-medium sm:order-none`}
+              className={`${outlineBtn} order-2 min-h-10 px-3.5 font-medium nav:order-none`}
             >
               Book a Demo
             </motion.a>
@@ -411,7 +412,7 @@ export function AzurroLanding() {
 
           <motion.div
             id="var"
-            className="mt-2 scroll-mt-[128px] bg-card shadow-[inset_0_0_0_1px_var(--border)] sm:scroll-mt-[96px]"
+            className="mt-2 scroll-mt-[128px] bg-card shadow-[inset_0_0_0_1px_var(--border)] nav:scroll-mt-[96px]"
             variants={stagger(0.09)}
             initial="hidden"
             whileInView="visible"
