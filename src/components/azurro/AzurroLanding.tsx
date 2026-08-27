@@ -220,14 +220,14 @@ export function AzurroLanding() {
             <motion.a
               href="#contact"
               whileTap={tap}
-              className={`${primaryBtn} px-[18px] py-[11px]`}
+              className={`${primaryBtn} min-h-11 px-[18px]`}
             >
               Book a Demo
             </motion.a>
             <motion.a
               href="#signin"
               whileTap={tap}
-              className={`${outlineBtn} px-3.5 py-2.5`}
+              className={`${outlineBtn} min-h-11 px-3.5`}
             >
               Sign in
             </motion.a>
@@ -408,7 +408,7 @@ export function AzurroLanding() {
 
           <motion.div
             id="var"
-            className="mt-2 scroll-mt-[80px] bg-card shadow-[inset_0_0_0_1px_var(--border)]"
+            className="mt-2 scroll-mt-[124px] bg-card shadow-[inset_0_0_0_1px_var(--border)] sm:scroll-mt-[80px]"
             variants={stagger(0.09)}
             initial="hidden"
             whileInView="visible"
@@ -610,13 +610,13 @@ export function AzurroLanding() {
               <motion.a
                 href="mailto:hello@azurro.in?subject=Demo%20request"
                 whileTap={tap}
-                className={`${primaryBtn} w-full justify-center px-[18px] py-[13px]`}
+                className={`${primaryBtn} min-h-12 w-full max-w-[360px] justify-center px-[18px]`}
               >
                 Book a Demo
               </motion.a>
               <a
                 href="mailto:hello@azurro.in"
-                className="font-mono text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                className="inline-flex min-h-9 items-center font-mono text-[13px] text-muted-foreground transition-colors hover:text-foreground"
               >
                 hello@azurro.in
               </a>

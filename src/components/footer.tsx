@@ -58,11 +58,11 @@ export function Footer() {
             </div>
 
             <nav>
-              <ul className="flex flex-wrap gap-x-6 gap-y-3 text-[13px] text-muted-foreground">
+              <ul className="-my-1 flex flex-wrap gap-x-6 gap-y-1 text-[13px] text-muted-foreground">
                 {navLinks.map((link) => (
                   <li key={link.label}>
                     <a
-                      className="py-1 transition-colors hover:text-foreground"
+                      className="inline-flex min-h-9 items-center transition-colors hover:text-foreground"
                       href={link.href}
                     >
                       {link.label}
@@ -78,7 +78,7 @@ export function Footer() {
               &copy; {new Date().getFullYear()} Azurro · Koramangala, Bangalore
             </p>
             <a
-              className="font-mono transition-colors hover:text-foreground"
+              className="inline-flex min-h-9 items-center font-mono transition-colors hover:text-foreground"
               href="mailto:hello@azurro.in"
             >
               hello@azurro.in
