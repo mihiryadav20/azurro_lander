@@ -9,6 +9,7 @@ import {
 import { Menu, X } from "lucide-react"
 import logo from "@/assets/azurro-logo.png"
 import { Footer } from "@/components/footer"
+import { QuizModal } from "@/components/azurro/QuizModal"
 import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/terminal"
 import {
   EASE,
@@ -116,6 +117,12 @@ export function AzurroLanding() {
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
 
+  const [quizOpen, setQuizOpen] = useState(false)
+  const openQuiz = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setQuizOpen(true)
+  }
+
   // The panel only exists below `nav`; resizing past it (rotating a tablet,
   // widening a window) must drop the open state too, or a hidden trigger
   // leaves stale "expanded" state on the desktop nav for a11y tools to trip on.
@@ -219,6 +226,7 @@ export function AzurroLanding() {
             </div>
             <motion.a
               href="#contact"
+              onClick={openQuiz}
               whileTap={tap}
               className={`${outlineBtn} min-h-10 whitespace-nowrap px-3 font-medium nav:px-3.5`}
             >
@@ -293,6 +301,7 @@ export function AzurroLanding() {
           <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2">
             <motion.a
               href="#contact"
+              onClick={openQuiz}
               whileTap={tap}
               className={`${primaryBtn} min-h-11 px-[18px]`}
             >
@@ -683,6 +692,7 @@ export function AzurroLanding() {
             <motion.div variants={fadeUp} className="flex flex-col items-start gap-3">
               <motion.a
                 href="mailto:hello@azurro.in?subject=Demo%20request"
+                onClick={openQuiz}
                 whileTap={tap}
                 className={`${primaryBtn} min-h-12 w-full max-w-[360px] justify-center px-[18px]`}
               >
@@ -699,6 +709,8 @@ export function AzurroLanding() {
         </section>
 
         <Footer />
+
+        <QuizModal open={quizOpen} onClose={() => setQuizOpen(false)} />
       </div>
     </MotionConfig>
   )
