@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  // Must match the Worker name already deployed under this Cloudflare
+  // account, or a deploy creates a second, separate Worker instead of
+  // updating this one.
+  "name": "the-landing-page",
+  "main": "src/worker.ts",
+  // TODO: confirm this matches the compatibility date shown in the
+  // dashboard for the existing Worker before deploying — a mismatch can
+  // silently change runtime behaviour.
+  "compatibility_date": "2026-08-27",
+  "assets": {
+    "directory": "./dist/",
+    "binding": "ASSETS",
+    // Only /api/lead is routed to the Worker script; every other request
+    // (the SPA's HTML/JS/CSS) is served straight from assets without
+    // spinning up the Worker at all.
+    "run_worker_first": ["/api/lead"]
+  }
+}
