@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react"
 
 import logo from "@/assets/azurro-logo.png"
 import { EASE } from "@/components/azurro/motion"
+import { OTHER_CITY_LABEL, saveLead, type LeadAnswers } from "@/lib/lead"
 
 type QuestionKey =
   | "centres"
@@ -70,8 +71,6 @@ const QSTEPS: QuestionStep[] = [
     ],
   },
 ]
-
-const OTHER_CITY_LABEL = "Other (enter city)"
 
 const PHRASE: Partial<Record<QuestionKey, Record<string, string>>> = {
   centres: {
