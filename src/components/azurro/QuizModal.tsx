@@ -127,6 +127,23 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
   const [otherOpen, setOtherOpen] = useState(false)
   const [otherCity, setOtherCity] = useState("")
 
+  // One id per visitor, generated once and kept in state. The route upserts on
+  // it, so every step of this quiz updates a single row rather than adding one.
+  const [sessionId] = useState(() => crypto.randomUUID())
+
+  // Answers live in two places — the picked options in `answers`, the typed
+  // contact details in their own fields — so saving needs both halves. Callers
+  // pass the freshly-computed answers because setState has not applied yet.
+  const withContact = (a: Answers, overrides: LeadAnswers = {}): LeadAnswers => ({
+    ...a,
+    otherCity,
+    name,
+    phone,
+    business,
+    why,
+    ...overrides,
+  })
+
   // Every "Book a Demo" click restarts the questions from the top — answers,
   // name, phone and business stay filled in behind the scenes, so a reopen
   // after Escape/CLOSE doesn't lose what was already typed.
