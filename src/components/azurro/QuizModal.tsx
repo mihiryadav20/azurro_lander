@@ -190,16 +190,17 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
       : ""
 
   function pick(key: QuestionKey, label: string) {
+    const next = { ...answers, [key]: label }
+    setAnswers(next)
+    setHint("")
     if (label === OTHER_CITY_LABEL) {
-      setAnswers((a) => ({ ...a, [key]: label }))
+      // Nothing to save yet — the step has not advanced and the city is blank.
       setOtherOpen(true)
-      setHint("")
       return
     }
-    setAnswers((a) => ({ ...a, [key]: label }))
     setOtherOpen(false)
     setStep((s) => s + 1)
-    setHint("")
+    saveLead(sessionId, step + 1, withContact(next))
   }
 
   function submitOther() {
@@ -208,19 +209,29 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
       setHint("Which city?")
       return
     }
-    setAnswers((a) => ({ ...a, where: city }))
+    // `where` stays the picked option label so returning to this question still
+    // shows it as PICKED; the typed city rides alongside it.
+    setOtherCity(city)
     setOtherOpen(false)
     setStep((s) => s + 1)
     setHint("")
+    saveLead(sessionId, step + 1, withContact(answers, { otherCity: city }))
   }
 
   function submitQuiz() {
-    if (!name.trim() || !phone.trim() || !business.trim()) {
+    const trimmed = {
+      name: name.trim(),
+      phone: phone.trim(),
+      business: business.trim(),
+    }
+    if (!trimmed.name || !trimmed.phone || !trimmed.business) {
       setHint("Name, phone and business name — all three, then we can call.")
       return
     }
     setStep((s) => s + 1)
     setHint("")
+    // step + 1 lands on the final step, which is what marks the row complete.
+    saveLead(sessionId, step + 1, withContact(answers, trimmed))
   }
 
   function back() {
