@@ -2,17 +2,11 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { AnimatePresence, motion } from "motion/react"
 
 import logo from "@/assets/azurro-logo.png"
-import { EASE } from "@/components/azurro/motion"
+import { EASE, quizStep } from "@/components/azurro/motion"
 import { OTHER_CITY_LABEL, saveLead, type LeadAnswers } from "@/lib/lead"
 
 type QuestionKey =
-  | "centres"
-  | "grounds"
-  | "presence"
-  | "records"
-  | "pay"
-  | "cctv"
-  | "where"
+  "centres" | "grounds" | "presence" | "records" | "pay" | "cctv" | "where"
 
 type Answers = Partial<Record<QuestionKey, string>>
 
@@ -114,9 +108,12 @@ const quizGhostBtn =
 interface QuizModalProps {
   open: boolean
   onClose: () => void
+  /** Called when the visitor clicks Done on the summary screen — the caller
+   * owns what happens next (the loader page, then the thank-you dialog). */
+  onDone: () => void
 }
 
-export function QuizModal({ open, onClose }: QuizModalProps) {
+export function QuizModal({ open, onClose, onDone }: QuizModalProps) {
   const [step, setStep] = useState(0)
   const [answers, setAnswers] = useState<Answers>({})
   const [name, setName] = useState("")
@@ -134,7 +131,10 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
   // Answers live in two places — the picked options in `answers`, the typed
   // contact details in their own fields — so saving needs both halves. Callers
   // pass the freshly-computed answers because setState has not applied yet.
-  const withContact = (a: Answers, overrides: LeadAnswers = {}): LeadAnswers => ({
+  const withContact = (
+    a: Answers,
+    overrides: LeadAnswers = {}
+  ): LeadAnswers => ({
     ...a,
     otherCity,
     name,
@@ -252,7 +252,8 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
       })
       .filter((part): part is string => Boolean(part))
     const cashy =
-      answers.pay === "Mostly cash" || answers.pay === "Cash and UPI about equal"
+      answers.pay === "Mostly cash" ||
+      answers.pay === "Cash and UPI about equal"
     const away = answers.presence === "Rarely"
     return {
       summary: parts.length ? `${parts.join(", ")}.` : "",
@@ -289,7 +290,7 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
                   <img
                     src={logo}
                     alt="Azurro"
-                    className="absolute -left-[21px] -top-[17px] h-[62px] w-[62px]"
+                    className="absolute -top-[17px] -left-[21px] h-[62px] w-[62px]"
                   />
                 </span>
                 <span className="font-display text-2xl leading-none font-bold tracking-[0.02em] text-foreground">
@@ -319,45 +320,121 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
 
           <div className="flex flex-1 items-center">
             <div className="mx-auto w-full max-w-[1200px] px-6 py-[clamp(40px,7vw,88px)]">
-              {isQuestion && cur && (
-                <div>
-                  <div className="mb-5 font-mono text-xs text-muted-foreground">
-                    {stepKicker}
-                  </div>
-                  <h2 className="mb-10 max-w-[20ch] text-[clamp(34px,5vw,64px)] leading-none">
-                    {cur.q}
-                  </h2>
-                  <div className="grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-3">
-                    {cur.opts.map((label) => (
-                      <button
-                        key={label}
-                        type="button"
-                        onClick={() => pick(cur.key, label)}
-                        className="flex items-center gap-3 border border-border bg-transparent px-5 py-[18px] text-left font-sans text-base text-foreground transition-colors hover:bg-secondary"
-                      >
-                        <span>{label}</span>
-                        <span className="ml-auto font-mono text-[11px] text-muted-foreground">
-                          {answers[cur.key] === label ? "PICKED" : ""}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                  {otherOpen && (
-                    <div className="mt-4 flex max-w-[900px] flex-wrap items-center gap-3">
+              {/* Keyed on the step so each question leaves before the next
+                  arrives, rather than the text swapping in place. */}
+              <AnimatePresence mode="wait" initial={false}>
+                {isQuestion && cur && (
+                  <motion.div
+                    key={`q-${step}`}
+                    variants={quizStep}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <div className="mb-5 font-mono text-xs text-muted-foreground">
+                      {stepKicker}
+                    </div>
+                    <h2 className="mb-10 max-w-[20ch] text-[clamp(34px,5vw,64px)] leading-none">
+                      {cur.q}
+                    </h2>
+                    <div className="grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(100%,280px),1fr))] gap-3">
+                      {cur.opts.map((label) => (
+                        <button
+                          key={label}
+                          type="button"
+                          onClick={() => pick(cur.key, label)}
+                          className="flex items-center gap-3 border border-border bg-transparent px-5 py-[18px] text-left font-sans text-base text-foreground transition-colors hover:bg-secondary"
+                        >
+                          <span>{label}</span>
+                          <span className="ml-auto font-mono text-[11px] text-muted-foreground">
+                            {answers[cur.key] === label ? "PICKED" : ""}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {otherOpen && (
+                      <div className="mt-4 flex max-w-[900px] flex-wrap items-center gap-3">
+                        <input
+                          type="text"
+                          placeholder="Which city?"
+                          value={otherCity}
+                          onChange={(e) => setOtherCity(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && submitOther()}
+                          className={`${quizInput} min-w-[240px] flex-1`}
+                        />
+                        <button
+                          type="button"
+                          onClick={submitOther}
+                          className={quizPrimaryBtn}
+                        >
+                          Continue
+                        </button>
+                        {hint && (
+                          <span className="font-mono text-xs text-muted-foreground">
+                            {hint}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {isContact && (
+                  <motion.div
+                    key="contact"
+                    variants={quizStep}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <div className="mb-5 font-mono text-xs text-muted-foreground">
+                      {stepKicker}
+                    </div>
+                    <h2 className="mb-3 max-w-[20ch] text-[clamp(34px,5vw,64px)] leading-none">
+                      Who do we call?
+                    </h2>
+                    <p className="mb-9 max-w-[46ch] text-base leading-normal text-muted-foreground">
+                      Three fields. We call once, at a time you pick.
+                    </p>
+                    <div className="grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-3">
                       <input
                         type="text"
-                        placeholder="Which city?"
-                        value={otherCity}
-                        onChange={(e) => setOtherCity(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && submitOther()}
-                        className={`${quizInput} min-w-[240px] flex-1`}
+                        placeholder="Your name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className={quizInput}
                       />
+                      <input
+                        type="tel"
+                        placeholder="Phone"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className={quizInput}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Business name"
+                        value={business}
+                        onChange={(e) => setBusiness(e.target.value)}
+                        className={quizInput}
+                      />
+                    </div>
+                    <div className="mt-3 max-w-[900px]">
+                      <input
+                        type="text"
+                        placeholder="What made you look at this today? (optional)"
+                        value={why}
+                        onChange={(e) => setWhy(e.target.value)}
+                        className={`${quizInput} w-full`}
+                      />
+                    </div>
+                    <div className="mt-7 flex flex-wrap items-center gap-4">
                       <button
                         type="button"
-                        onClick={submitOther}
+                        onClick={submitQuiz}
                         className={quizPrimaryBtn}
                       >
-                        Continue
+                        See what we would look at
                       </button>
                       {hint && (
                         <span className="font-mono text-xs text-muted-foreground">
@@ -365,112 +442,62 @@ export function QuizModal({ open, onClose }: QuizModalProps) {
                         </span>
                       )}
                     </div>
-                  )}
-                </div>
-              )}
+                  </motion.div>
+                )}
 
-              {isContact && (
-                <div>
-                  <div className="mb-5 font-mono text-xs text-muted-foreground">
-                    {stepKicker}
-                  </div>
-                  <h2 className="mb-3 max-w-[20ch] text-[clamp(34px,5vw,64px)] leading-none">
-                    Who do we call?
-                  </h2>
-                  <p className="mb-9 max-w-[46ch] text-base leading-normal text-muted-foreground">
-                    Three fields. We call once, at a time you pick.
-                  </p>
-                  <div className="grid max-w-[900px] grid-cols-[repeat(auto-fit,minmax(min(100%,240px),1fr))] gap-3">
-                    <input
-                      type="text"
-                      placeholder="Your name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className={quizInput}
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Phone"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className={quizInput}
-                    />
-                    <input
-                      type="text"
-                      placeholder="Business name"
-                      value={business}
-                      onChange={(e) => setBusiness(e.target.value)}
-                      className={quizInput}
-                    />
-                  </div>
-                  <div className="mt-3 max-w-[900px]">
-                    <input
-                      type="text"
-                      placeholder="What made you look at this today? (optional)"
-                      value={why}
-                      onChange={(e) => setWhy(e.target.value)}
-                      className={`${quizInput} w-full`}
-                    />
-                  </div>
-                  <div className="mt-7 flex flex-wrap items-center gap-4">
-                    <button
-                      type="button"
-                      onClick={submitQuiz}
-                      className={quizPrimaryBtn}
-                    >
-                      See what we would look at
-                    </button>
-                    {hint && (
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {hint}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {isDone && (
-                <div>
-                  <div className="mb-5 font-mono text-xs text-muted-foreground">
-                    WHAT YOU TOLD US
-                  </div>
-                  <h2 className="mb-7 max-w-[26ch] text-[clamp(30px,4.2vw,56px)] leading-[1.02]">
-                    {summary}
-                  </h2>
-                  <div className="flex max-w-[620px] flex-col gap-3.5 border-t border-border pt-6">
-                    <p className="text-[clamp(17px,2vw,20px)] leading-[1.4] text-foreground">
-                      {verdict}
-                    </p>
-                    <p className="text-base leading-normal text-muted-foreground">
-                      At Terna in Nerul we read nine cameras every fifteen
-                      seconds. Their first audit landed the morning after
-                      install. {cctvNote}
-                    </p>
-                    <p className="text-[15px] leading-[1.6] text-muted-foreground">
-                      Next: a twenty-minute call on your own grid, within one
-                      working day. Nothing to install before it.
-                    </p>
-                  </div>
-                  <div className="mt-8 flex flex-wrap items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={onClose}
-                      className={quizPrimaryBtn}
-                    >
-                      Done
-                    </button>
-                    <a
-                      href="mailto:hello@azurro.in"
-                      className="font-mono text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      hello@azurro.in
-                    </a>
-                  </div>
-                </div>
-              )}
+                {isDone && (
+                  <motion.div
+                    key="done"
+                    variants={quizStep}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <div className="mb-5 font-mono text-xs text-muted-foreground">
+                      WHAT YOU TOLD US
+                    </div>
+                    <h2 className="mb-7 max-w-[26ch] text-[clamp(30px,4.2vw,56px)] leading-[1.02]">
+                      {summary}
+                    </h2>
+                    <div className="flex max-w-[620px] flex-col gap-3.5 border-t border-border pt-6">
+                      <p className="text-[clamp(17px,2vw,20px)] leading-[1.4] text-foreground">
+                        {verdict}
+                      </p>
+                      <p className="text-base leading-normal text-muted-foreground">
+                        At Terna in Nerul we read nine cameras every fifteen
+                        seconds. Their first audit landed the morning after
+                        install. {cctvNote}
+                      </p>
+                      <p className="text-[15px] leading-[1.6] text-muted-foreground">
+                        Next: a twenty-minute call on your own grid, within one
+                        working day. Nothing to install before it.
+                      </p>
+                    </div>
+                    <div className="mt-8 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={onDone}
+                        className={quizPrimaryBtn}
+                      >
+                        Done
+                      </button>
+                      <a
+                        href="mailto:hello@azurro.in"
+                        className="font-mono text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+                      >
+                        hello@azurro.in
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {showBack && (
-                <button type="button" onClick={back} className={`${quizGhostBtn} mt-8`}>
+                <button
+                  type="button"
+                  onClick={back}
+                  className={`${quizGhostBtn} mt-8`}
+                >
                   ← BACK
                 </button>
               )}

@@ -54,6 +54,36 @@ export const unbookedCell: Variants = {
   },
 }
 
+// The full-screen states (quiz, loader, confirmation) hand off one at a time
+// rather than cross-fading: each covers the one before it, so the page behind
+// never flashes through the seam. Exit is quicker than enter so the incoming
+// state is already opaque by the time the outgoing one clears.
+export const overlay: Variants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.35, ease: EASE } },
+  exit: { opacity: 0, transition: { duration: 0.28, ease: EASE } },
+}
+
+// Content settles just after its backdrop, so the panel reads as arriving
+// rather than being revealed all at once.
+export const overlayContent: Variants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: EASE, delay: 0.1 },
+  },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.22, ease: EASE } },
+}
+
+// Step-to-step inside the quiz. Shorter than the overlay moves — it is the
+// same surface changing its contents, not a new surface arriving.
+export const quizStep: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: EASE } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.18, ease: EASE } },
+}
+
 export const livePulse: Variants = {
   hidden: { opacity: 0 },
   visible: {

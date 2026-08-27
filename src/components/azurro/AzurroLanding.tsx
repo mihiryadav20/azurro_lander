@@ -8,9 +8,14 @@ import {
 } from "motion/react"
 import { Menu, X } from "lucide-react"
 import logo from "@/assets/azurro-logo.png"
+import loaderGif from "@/assets/loader.gif"
 import { Footer } from "@/components/footer"
 import { QuizModal } from "@/components/azurro/QuizModal"
-import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/terminal"
+import {
+  AnimatedSpan,
+  Terminal,
+  TypingAnimation,
+} from "@/components/ui/terminal"
 import {
   EASE,
   fadeIn,
@@ -18,11 +23,16 @@ import {
   fadeUpTight,
   gridCell,
   livePulse,
+  overlay,
+  overlayContent,
   stagger,
   unbookedCell,
   viewportEarly,
   viewportOnce,
 } from "@/components/azurro/motion"
+
+/** How long the loader holds before the confirmation takes over. */
+const LOADER_MS = 5000
 
 const primaryBtn =
   "inline-flex items-center bg-primary text-primary-foreground text-sm font-semibold transition-opacity hover:opacity-85"
@@ -62,10 +72,22 @@ const NAV_LINKS = [
 const TIMES = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
 
 const OCCUPANCY_ROWS: { label: string; cells: ("empty" | "booked")[] }[] = [
-  { label: "GROUND 1", cells: ["empty", "booked", "booked", "booked", "empty", "empty"] },
-  { label: "GROUND 2", cells: ["booked", "booked", "empty", "booked", "booked", "empty"] },
-  { label: "GROUND 3", cells: ["empty", "booked", "booked", "empty", "empty", "empty"] },
-  { label: "GROUND 4", cells: ["booked", "empty", "booked", "booked", "booked", "empty"] },
+  {
+    label: "GROUND 1",
+    cells: ["empty", "booked", "booked", "booked", "empty", "empty"],
+  },
+  {
+    label: "GROUND 2",
+    cells: ["booked", "booked", "empty", "booked", "booked", "empty"],
+  },
+  {
+    label: "GROUND 3",
+    cells: ["empty", "booked", "booked", "empty", "empty", "empty"],
+  },
+  {
+    label: "GROUND 4",
+    cells: ["booked", "empty", "booked", "booked", "booked", "empty"],
+  },
 ]
 
 // The catch can only land where the register shows nothing — that is the whole
@@ -81,8 +103,14 @@ const FIRST_CATCH = Math.max(
 const CATCH_INTERVAL = 3600
 
 const VAR_ITEMS = [
-  { title: "Unbooked play", desc: "Ground was occupied. Nothing in the register." },
-  { title: "Booking mismatch", desc: "Play registered against a different court." },
+  {
+    title: "Unbooked play",
+    desc: "Ground was occupied. Nothing in the register.",
+  },
+  {
+    title: "Booking mismatch",
+    desc: "Play registered against a different court.",
+  },
   { title: "Overtime play", desc: "Game ran past the slot it was booked for." },
 ]
 
@@ -108,7 +136,6 @@ const FAQS = [
   },
 ]
 
-
 export function AzurroLanding() {
   // MotionConfig strips transforms for reduced-motion users but leaves opacity
   // running, so the looping animations on the page need their own opt-out.
@@ -117,11 +144,22 @@ export function AzurroLanding() {
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = () => setMenuOpen(false)
 
-  const [quizOpen, setQuizOpen] = useState(false)
+  // Quiz, loader and confirmation are one sequence, so they share a single
+  // stage rather than three booleans that could contradict each other.
+  const [stage, setStage] = useState<"idle" | "quiz" | "loader" | "thanks">(
+    "idle"
+  )
+
   const openQuiz = (e: React.MouseEvent) => {
     e.preventDefault()
-    setQuizOpen(true)
+    setStage("quiz")
   }
+
+  useEffect(() => {
+    if (stage !== "loader") return
+    const timer = setTimeout(() => setStage("thanks"), LOADER_MS)
+    return () => clearTimeout(timer)
+  }, [stage])
 
   // The panel only exists below `nav`; resizing past it (rotating a tablet,
   // widening a window) must drop the open state too, or a hidden trigger
@@ -207,7 +245,7 @@ export function AzurroLanding() {
                 <img
                   src={logo}
                   alt="Azurro"
-                  className="absolute -left-[21px] -top-[17px] h-[62px] w-[62px]"
+                  className="absolute -top-[17px] -left-[21px] h-[62px] w-[62px]"
                 />
               </span>
               <span className="font-display text-2xl leading-none font-bold tracking-[0.02em] text-foreground">
@@ -228,7 +266,7 @@ export function AzurroLanding() {
               href="#contact"
               onClick={openQuiz}
               whileTap={tap}
-              className={`${outlineBtn} min-h-10 whitespace-nowrap px-3 font-medium nav:px-3.5`}
+              className={`${outlineBtn} min-h-10 px-3 font-medium whitespace-nowrap nav:px-3.5`}
             >
               Book a Demo
             </motion.a>
@@ -240,7 +278,11 @@ export function AzurroLanding() {
               onClick={() => setMenuOpen((open) => !open)}
               className="inline-flex size-10 shrink-0 items-center justify-center border border-border text-foreground transition-colors hover:bg-secondary nav:hidden"
             >
-              {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+              {menuOpen ? (
+                <X className="size-5" />
+              ) : (
+                <Menu className="size-5" />
+              )}
             </button>
           </div>
 
@@ -295,10 +337,13 @@ export function AzurroLanding() {
             variants={fadeUp}
             className="mb-8 max-w-[52ch] text-[clamp(17px,2vw,20px)] leading-[1.4] text-muted-foreground"
           >
-            Your staff record the bookings. Your cameras confirm them. You read one
-            report at midnight.
+            Your staff record the bookings. Your cameras confirm them. You read
+            one report at midnight.
           </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2">
+          <motion.div
+            variants={fadeUp}
+            className="flex flex-wrap items-center gap-2"
+          >
             <motion.a
               href="#contact"
               onClick={openQuiz}
@@ -354,7 +399,12 @@ export function AzurroLanding() {
               >
                 <span />
                 {TIMES.map((t, i) => (
-                  <motion.span key={t} variants={gridCell} custom={i} className="pb-1">
+                  <motion.span
+                    key={t}
+                    variants={gridCell}
+                    custom={i}
+                    className="pb-1"
+                  >
                     {t}
                   </motion.span>
                 ))}
@@ -443,8 +493,8 @@ export function AzurroLanding() {
               variants={fadeUp}
               className="mb-4 max-w-[19ch] text-[clamp(34px,5vw,64px)] leading-none"
             >
-              You already have cameras. You already have a register. Azurro makes
-              them agree.
+              You already have cameras. You already have a register. Azurro
+              makes them agree.
             </motion.h2>
             <motion.p
               variants={fadeUp}
@@ -539,7 +589,7 @@ export function AzurroLanding() {
               <Terminal
                 loop={!reduceMotion}
                 loopDelay={5200}
-                className="h-auto max-h-none w-full max-w-none rounded-none border-border bg-card [container-type:inline-size] [&>pre]:min-h-[calc(17.2em_+_40px)] [&>pre]:p-[clamp(10px,1.6cqw,20px)] [&>pre]:text-[clamp(11px,2.2cqw,12px)] [&>pre>code]:gap-y-0"
+                className="[container-type:inline-size] h-auto max-h-none w-full max-w-none rounded-none border-border bg-card [&>pre]:min-h-[calc(17.2em_+_40px)] [&>pre]:p-[clamp(10px,1.6cqw,20px)] [&>pre]:text-[clamp(11px,2.2cqw,12px)] [&>pre>code]:gap-y-0"
               >
                 <AnimatedSpan
                   className={`${termLine} tracking-[0.04em] text-muted-foreground`}
@@ -558,17 +608,27 @@ export function AzurroLanding() {
                 <AnimatedSpan className={`${termLine} text-muted-foreground`}>
                   {"centre  terna-nerul    cameras  9    interval  15s"}
                 </AnimatedSpan>
-                <AnimatedSpan className={`${termLine} mt-[1.72em] text-green-500`}>
-                  {"  GR1   14:02:18  people=6  raw=8  in-roi=6   POST /ingest  200"}
+                <AnimatedSpan
+                  className={`${termLine} mt-[1.72em] text-green-500`}
+                >
+                  {
+                    "  GR1   14:02:18  people=6  raw=8  in-roi=6   POST /ingest  200"
+                  }
                 </AnimatedSpan>
                 <AnimatedSpan className={`${termLine} text-green-500`}>
-                  {"  GR2   14:02:18  people=0  raw=1  in-roi=0   POST /ingest  200"}
+                  {
+                    "  GR2   14:02:18  people=0  raw=1  in-roi=0   POST /ingest  200"
+                  }
                 </AnimatedSpan>
                 <AnimatedSpan className={`${termLine} text-green-500`}>
-                  {"  GR3   14:02:19  people=4  raw=4  in-roi=4   POST /ingest  200"}
+                  {
+                    "  GR3   14:02:19  people=4  raw=4  in-roi=4   POST /ingest  200"
+                  }
                 </AnimatedSpan>
                 <AnimatedSpan className={`${termLine} text-green-500`}>
-                  {"  PB3   14:02:19  people=0  raw=0  in-roi=0   POST /ingest  200"}
+                  {
+                    "  PB3   14:02:19  people=0  raw=0  in-roi=0   POST /ingest  200"
+                  }
                 </AnimatedSpan>
                 <TypingAnimation
                   duration={26}
@@ -596,7 +656,10 @@ export function AzurroLanding() {
               02 / GETTING STARTED
             </motion.div>
             <div className="flex flex-wrap items-start gap-[clamp(28px,4vw,56px)]">
-              <motion.div variants={fadeUp} className="max-w-[460px] flex-[1_1_300px]">
+              <motion.div
+                variants={fadeUp}
+                className="max-w-[460px] flex-[1_1_300px]"
+              >
                 <h2 className="mb-5 text-[clamp(34px,5vw,64px)] leading-none">
                   Half a day per centre.
                 </h2>
@@ -615,7 +678,10 @@ export function AzurroLanding() {
                 <div className="mb-4 font-mono text-xs text-muted-foreground">
                   INSTALL CHECKLIST
                 </div>
-                <motion.div variants={stagger(0.07)} className="flex flex-col gap-3">
+                <motion.div
+                  variants={stagger(0.07)}
+                  className="flex flex-col gap-3"
+                >
                   {CHECKLIST.map((step, i) => (
                     <motion.div
                       key={step}
@@ -689,7 +755,10 @@ export function AzurroLanding() {
                 centres and grounds you run.
               </p>
             </motion.div>
-            <motion.div variants={fadeUp} className="flex flex-col items-start gap-3">
+            <motion.div
+              variants={fadeUp}
+              className="flex flex-col items-start gap-3"
+            >
               <motion.a
                 href="mailto:hello@azurro.in?subject=Demo%20request"
                 onClick={openQuiz}
@@ -710,7 +779,72 @@ export function AzurroLanding() {
 
         <Footer />
 
-        <QuizModal open={quizOpen} onClose={() => setQuizOpen(false)} />
+        <QuizModal
+          open={stage === "quiz"}
+          onClose={() => setStage("idle")}
+          onDone={() => setStage("loader")}
+        />
+
+        {/* mode="wait" holds the incoming state until the outgoing one has
+            finished leaving, so the loader and the confirmation never overlap
+            mid-fade. */}
+        <AnimatePresence mode="wait">
+          {stage === "loader" && (
+            <motion.div
+              key="loader"
+              role="status"
+              aria-label="Submitting"
+              variants={overlay}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              // Pure black rather than --background (#0a0a0a): the GIF has
+              // black baked into its frames, and the 10/255 gap reads as a
+              // visible square around it.
+              className="fixed inset-0 z-[60] flex items-center justify-center bg-black"
+            >
+              <motion.img
+                variants={overlayContent}
+                src={loaderGif}
+                alt=""
+                className="max-h-[20vh] w-auto max-w-full"
+              />
+            </motion.div>
+          )}
+
+          {stage === "thanks" && (
+            <motion.div
+              key="thanks"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Thanks"
+              variants={overlay}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="fixed inset-0 z-[60] flex items-center justify-center bg-background/80 p-6"
+              onClick={() => setStage("idle")}
+            >
+              <motion.div
+                variants={overlayContent}
+                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-sm border border-border bg-background p-8 text-center"
+              >
+                <p className="text-xl leading-snug text-foreground">Got it.</p>
+                <p className="mt-2 text-base leading-normal text-muted-foreground">
+                  We'll call within one working day.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStage("idle")}
+                  className={`${primaryBtn} mt-6 justify-center px-[22px] py-[14px]`}
+                >
+                  Close
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </MotionConfig>
   )
