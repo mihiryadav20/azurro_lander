@@ -25,3 +25,8 @@ dist-ssr
 
 .agents/
 skills-lock.json
+
+# Local env — never commit real tokens
+.env
+.env.local
+.dev.vars
