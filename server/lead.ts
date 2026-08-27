@@ -14,8 +14,9 @@ export interface LeadEnv {
   AIRTABLE_TOKEN?: string
   AIRTABLE_BASE?: string
   AIRTABLE_TABLE?: string
-  /** Optional. Unset means no webhook is fired. */
-  NOTIFY_URL?: string
+  /** Optional, independently. Either unset means no Telegram message is sent. */
+  TELEGRAM_BOT_TOKEN?: string
+  TELEGRAM_CHAT_ID?: string
 }
 
 /** Highest step the quiz can report: 7 questions + the contact step. */
@@ -129,17 +130,57 @@ export function buildFields(body: Record<string, unknown>, step: number): Fields
   return fields
 }
 
-/** One-line summary for the notify webhook. */
+/** Telegram parse_mode is HTML, so free-typed values must be escaped before
+ * going anywhere near a tag — the "Why now" box especially is unrestricted
+ * user text. */
+function escapeHtml(value: string | number): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+}
+
+/** Multi-line HTML-formatted message for the Telegram notification. */
 function summarise(fields: Fields): string {
-  const parts = [
-    fields.Name,
-    fields.Business,
-    fields.Phone,
-    fields.Location,
-    fields.Centres ? `${fields.Centres} centres` : undefined,
-    fields.Grounds,
-  ].filter(Boolean)
-  return `New Azurro lead — ${parts.join(" · ")}`
+  const esc = (v: unknown) => escapeHtml(v as string | number)
+  // Pairs a value with its own label only where the value alone would be
+  // ambiguous — an emoji already tells you a phone number is a phone number.
+  const pair = (label: string, value: unknown) =>
+    value ? `${label}: ${esc(value)}` : undefined
+  const join = (...parts: unknown[]) => parts.filter(Boolean).join(" · ")
+
+  const location =
+    fields.Location === "Other" && fields["Other city"]
+      ? `${esc(fields.Location)} (${esc(fields["Other city"])})`
+      : fields.Location
+        ? esc(fields.Location)
+        : undefined
+
+  const nameLine = join(
+    fields.Name ? `<b>${esc(fields.Name)}</b>` : undefined,
+    fields.Business ? esc(fields.Business) : undefined
+  )
+  const groundsLine = join(pair("Centres", fields.Centres), pair("Grounds", fields.Grounds))
+  const opsLine = join(
+    pair("Booking", fields["Booking method"]),
+    pair("Payment", fields.Payment),
+    pair("CCTV", fields.CCTV)
+  )
+
+  const lines = [
+    "🎯 New Azurro lead",
+    "",
+    nameLine || undefined,
+    fields.Phone ? `📞 ${esc(fields.Phone)}` : undefined,
+    location ? `📍 ${location}` : undefined,
+    "",
+    groundsLine || undefined,
+    fields["On site"] ? pair("On site", fields["On site"]) : undefined,
+    opsLine || undefined,
+    fields["Why now"] ? `\n“${esc(fields["Why now"])}”` : undefined,
+  ].filter((l) => l !== undefined)
+
+  return lines.join("\n")
 }
 
 export async function handleLead(
@@ -212,15 +253,22 @@ export async function handleLead(
     return json(502, { error: "upstream error" })
   }
 
-  if (step >= FINAL_STEP && env.NOTIFY_URL) {
-    // Fire-and-forget: a dead webhook must never cost the visitor their
+  if (step >= FINAL_STEP && env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
+    // Fire-and-forget: a dead Telegram call must never cost the visitor their
     // submission, so the result is neither awaited nor allowed to reject.
-    const ping = fetch(env.NOTIFY_URL, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text: summarise(fields) }),
-    }).catch((e: unknown) => {
-      console.error("lead: notify failed", e)
+    const ping = fetch(
+      `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          chat_id: env.TELEGRAM_CHAT_ID,
+          text: summarise(fields),
+          parse_mode: "HTML",
+        }),
+      }
+    ).catch((e: unknown) => {
+      console.error("lead: telegram notify failed", e)
     })
     if (ctx) ctx.waitUntil(ping)
   }
