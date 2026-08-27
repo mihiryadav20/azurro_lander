@@ -28,10 +28,10 @@ const navLink =
   "motion-reduce:after:transition-none"
 // scroll-mt clears the sticky header on anchor jumps; each section's own top
 // padding supplies the breathing room below it. The header is two rows until
-// sm (brand + CTA, then the links), one 53px row from sm up — so the offset
+// sm (brand + CTA, then the links) at 97px, one 65px row from sm up — so the offset
 // has to step down with it or mobile anchors land underneath the header.
 const sectionPad =
-  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[104px] sm:scroll-mt-[60px]"
+  "mx-auto max-w-[1200px] px-6 pt-[clamp(56px,9vw,96px)] scroll-mt-[108px] sm:scroll-mt-[76px]"
 // Below sm the terminal is narrower than its own longest line, so the lines
 // wrap the way a real narrow terminal wraps. Keeping whitespace-pre there
 // would put the tail of every line behind a nested horizontal scroll.
@@ -408,7 +408,7 @@ export function AzurroLanding() {
 
           <motion.div
             id="var"
-            className="mt-2 scroll-mt-[124px] bg-card shadow-[inset_0_0_0_1px_var(--border)] sm:scroll-mt-[80px]"
+            className="mt-2 scroll-mt-[128px] bg-card shadow-[inset_0_0_0_1px_var(--border)] sm:scroll-mt-[96px]"
             variants={stagger(0.09)}
             initial="hidden"
             whileInView="visible"
