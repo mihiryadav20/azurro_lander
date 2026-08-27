@@ -29,7 +29,7 @@ const QSTEPS: QuestionStep[] = [
   },
   {
     key: "grounds",
-    q: "How many grounds in total?",
+    q: "How many grounds/courts in total?",
     opts: ["Under 10", "10 to 25", "26 to 50", "More than 50"],
   },
   {
@@ -54,7 +54,7 @@ const QSTEPS: QuestionStep[] = [
   },
   {
     key: "cctv",
-    q: "Do your grounds have CCTV already?",
+    q: "Do your grounds/courts have CCTV already?",
     opts: ["Yes, all of them", "Some grounds", "No cameras yet"],
   },
   {
