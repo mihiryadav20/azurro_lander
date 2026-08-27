@@ -1,5 +1,12 @@
 import { Fragment, useEffect, useRef, useState } from "react"
-import { MotionConfig, motion, useInView, useReducedMotion } from "motion/react"
+import {
+  AnimatePresence,
+  MotionConfig,
+  motion,
+  useInView,
+  useReducedMotion,
+} from "motion/react"
+import { Menu, X } from "lucide-react"
 import logo from "@/assets/azurro-logo.png"
 import { Footer } from "@/components/footer"
 import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/ui/terminal"
@@ -41,7 +48,16 @@ const sectionPad =
 const termLine =
   "font-mono whitespace-pre-wrap break-all sm:whitespace-pre sm:break-normal " +
   "text-[clamp(11px,2.2cqw,12px)] leading-[1.72]"
+const mobileNavLink =
+  "flex min-h-11 items-center border-b border-border px-1 text-[15px] text-muted-foreground " +
+  "transition-colors last:border-b-0 hover:text-foreground"
 const tap = { scale: 0.985 }
+
+const NAV_LINKS = [
+  { href: "#what", label: "Scoresheets" },
+  { href: "#var", label: "VAR-o1" },
+  { href: "#faq", label: "FAQ" },
+]
 
 const TIMES = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"]
 
@@ -97,6 +113,30 @@ export function AzurroLanding() {
   // MotionConfig strips transforms for reduced-motion users but leaves opacity
   // running, so the looping animations on the page need their own opt-out.
   const reduceMotion = useReducedMotion()
+
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = () => setMenuOpen(false)
+
+  // The panel only exists below `nav`; resizing past it (rotating a tablet,
+  // widening a window) must drop the open state too, or a hidden trigger
+  // leaves stale "expanded" state on the desktop nav for a11y tools to trip on.
+  useEffect(() => {
+    const query = window.matchMedia(
+      `(min-width: ${getComputedStyle(document.documentElement).getPropertyValue("--breakpoint-nav")})`
+    )
+    const onChange = () => setMenuOpen(false)
+    query.addEventListener("change", onChange)
+    return () => query.removeEventListener("change", onChange)
+  }, [])
+
+  useEffect(() => {
+    if (!menuOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false)
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [menuOpen])
 
   // VAR-o1 keeps finding a new one. The catch moves between empty slots while
   // the grid is on screen, and holds still once it scrolls away.
@@ -155,12 +195,8 @@ export function AzurroLanding() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, ease: EASE }}
         >
-          {/* Brand + links + CTA need ~516px to share one line (see --breakpoint-nav
-              in index.css) — below that the links take a full-width second row
-              (order-3 + w-full forces the wrap) and rejoin the single row at
-              `nav` and up. */}
-          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-4 px-6 py-2.5 nav:py-3">
-            <div className="order-1 mr-auto flex items-center gap-[9px] nav:order-none">
+          <div className="mx-auto flex max-w-[1200px] items-center gap-x-4 px-6 py-3">
+            <div className="mr-auto flex items-center gap-[9px]">
               <span className="relative block h-7 w-5 overflow-hidden">
                 <img
                   src={logo}
@@ -172,25 +208,60 @@ export function AzurroLanding() {
                 AZURRO
               </span>
             </div>
-            <div className="order-3 -mx-3 flex w-full flex-wrap items-center text-[13px] nav:order-none nav:mx-0 nav:w-auto nav:gap-1">
-              <a href="#what" className={navLink}>
-                Scoresheets
-              </a>
-              <a href="#var" className={navLink}>
-                VAR-o1
-              </a>
-              <a href="#faq" className={navLink}>
-                FAQ
-              </a>
+            {/* Inline from `nav` up; below it these links live in the panel
+                the hamburger opens, so this row is display:none there rather
+                than just visually hidden. */}
+            <div className="hidden items-center gap-1 text-[13px] nav:flex">
+              {NAV_LINKS.map((link) => (
+                <a key={link.href} href={link.href} className={navLink}>
+                  {link.label}
+                </a>
+              ))}
             </div>
             <motion.a
               href="#contact"
               whileTap={tap}
-              className={`${outlineBtn} order-2 min-h-10 px-3.5 font-medium nav:order-none`}
+              className={`${outlineBtn} min-h-10 px-3.5 font-medium`}
             >
               Book a Demo
             </motion.a>
+            <button
+              type="button"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              onClick={() => setMenuOpen((open) => !open)}
+              className="inline-flex size-10 shrink-0 items-center justify-center border border-border text-foreground transition-colors hover:bg-secondary nav:hidden"
+            >
+              {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
           </div>
+
+          <AnimatePresence initial={false}>
+            {menuOpen && (
+              <motion.div
+                id="mobile-nav"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.25, ease: EASE }}
+                className="overflow-hidden border-t border-border nav:hidden"
+              >
+                <nav className="mx-auto flex max-w-[1200px] flex-col px-6">
+                  {NAV_LINKS.map((link) => (
+                    <a
+                      key={link.href}
+                      href={link.href}
+                      onClick={closeMenu}
+                      className={mobileNavLink}
+                    >
+                      {link.label}
+                    </a>
+                  ))}
+                </nav>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Hero — above the fold, so it staggers on mount rather than on scroll. */}
