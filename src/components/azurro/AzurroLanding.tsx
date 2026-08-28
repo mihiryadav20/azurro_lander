@@ -8,7 +8,7 @@ import {
 } from "motion/react"
 import { Menu, X } from "lucide-react"
 import logo from "@/assets/azurro-logo.png"
-import loaderGif from "@/assets/loader.gif"
+import loaderAnimation from "@/assets/loader.webp"
 import { Footer } from "@/components/footer"
 import { QuizModal } from "@/components/azurro/QuizModal"
 import {
@@ -798,14 +798,14 @@ export function AzurroLanding() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              // Pure black rather than --background (#0a0a0a): the GIF has
-              // black baked into its frames, and the 10/255 gap reads as a
+              // Pure black rather than --background (#0a0a0a): the animation
+              // has black baked into its frames, and the 10/255 gap reads as a
               // visible square around it.
               className="fixed inset-0 z-[60] flex items-center justify-center bg-black"
             >
               <motion.img
                 variants={overlayContent}
-                src={loaderGif}
+                src={loaderAnimation}
                 alt=""
                 className="max-h-[20vh] w-auto max-w-full"
               />
