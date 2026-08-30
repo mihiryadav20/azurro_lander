@@ -11,6 +11,7 @@ import logo from "@/assets/azurro-logo.png"
 import loaderAnimation from "@/assets/loader.webp"
 import { Footer } from "@/components/footer"
 import { QuizModal } from "@/components/azurro/QuizModal"
+import { WordRotate } from "@/components/ui/word-rotate"
 import {
   AnimatedSpan,
   Terminal,
@@ -33,6 +34,10 @@ import {
 
 /** How long the loader holds before the confirmation takes over. */
 const LOADER_MS = 5000
+
+// "ground" first — it's what's in the DOM on first paint, so screenshots
+// and link previews show the same word the title/meta description use.
+const HERO_ROTATING_WORDS = ["ground", "court", "turf", "slot"]
 
 const primaryBtn =
   "inline-flex items-center bg-primary text-primary-foreground text-sm font-semibold transition-opacity hover:opacity-85"
@@ -331,7 +336,9 @@ export function AzurroLanding() {
             variants={fadeUp}
             className="mb-6 max-w-[19ch] text-[clamp(40px,7vw,88px)] leading-[0.92]"
           >
-            Know exactly what happened at every ground today.
+            Know exactly what happened at every{" "}
+            <WordRotate words={HERO_ROTATING_WORDS} duration={2800} />{" "}
+            today.
           </motion.h1>
           <motion.p
             variants={fadeUp}
