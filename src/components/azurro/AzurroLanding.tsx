@@ -353,7 +353,9 @@ export function AzurroLanding() {
               Book a Demo
             </motion.a>
             <motion.a
-              href="#signin"
+              href="https://app.azurro.co.in"
+              target="_blank"
+              rel="noopener noreferrer"
               whileTap={tap}
               className={`${outlineBtn} min-h-11 px-3.5`}
             >
